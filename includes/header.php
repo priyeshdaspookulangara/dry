@@ -73,10 +73,18 @@ require_once 'db.php'; // Include the database connection
                     <i class="far fa-heart action-icon"></i>
                     <span class="action-text">Wishlist</span>
                 </a>
-                <a href="#" class="action-item">
+                <a href="cart.php" class="action-item">
                     <i class="fas fa-shopping-cart action-icon"></i>
                     <span class="action-text">Cart</span>
-                    <span class="cart-badge">0</span> <!-- Static for now -->
+                    <?php
+                        $cart_item_count = 0;
+                        if (!empty($_SESSION['cart'])) {
+                            // Counts the number of unique products in the cart
+                            // For total quantity of all items: $cart_item_count = array_sum($_SESSION['cart']);
+                            $cart_item_count = count($_SESSION['cart']);
+                        }
+                    ?>
+                    <span class="cart-badge"><?php echo $cart_item_count; ?></span>
                 </a>
                  <?php if (isset($_SESSION['user_id'])): ?>
                      <a href="account.php" class="action-item d-none d-sm-flex">
@@ -162,4 +170,16 @@ require_once 'db.php'; // Include the database connection
     <!-- Main Content Area -->
     <main class="py-4">
         <div class="container-fluid">
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
             <!-- Page specific content starts here -->

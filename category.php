@@ -26,7 +26,7 @@ if (!isset($_GET['id']) || !filter_var($_GET['id'], FILTER_VALIDATE_INT)) {
 
     // --- Fetch Products in this Category ---
     $products = [];
-    $stmt_prod = mysqli_prepare($conn, "SELECT id, name, price, original_price, image, rating, rating_count FROM products WHERE category_id = ? ORDER BY name ASC");
+    $stmt_prod = mysqli_prepare($conn, "SELECT id, name, price, original_price, image, rating, rating_count, stock_quantity FROM products WHERE category_id = ? ORDER BY name ASC");
     if($stmt_prod){
         mysqli_stmt_bind_param($stmt_prod, "i", $category_id);
         mysqli_stmt_execute($stmt_prod);
@@ -82,12 +82,17 @@ if (!isset($_GET['id']) || !filter_var($_GET['id'], FILTER_VALIDATE_INT)) {
                                 <span class="rating-text">(<?php echo htmlspecialchars($product['rating_count']); ?>)</span>
                             </div>
                             <div class="product-actions">
-                                <button class="btn-add-cart">
-                                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
-                                </button>
+                                <form action="cart_actions.php" method="POST" class="d-inline">
+                                    <input type="hidden" name="action" value="add">
+                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn-add-cart" <?php if ($product['stock_quantity'] <= 0) echo 'disabled'; ?>>
+                                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                    </button>
+                                </form>
                                 <a href="product_details.php?id=<?php echo $product['id']; ?>" class="btn-quick-view" title="View Details">
                                     <i class="fas fa-eye"></i>
-                                </a>
+                                a>
                             </div>
                         </div>
                     </div>

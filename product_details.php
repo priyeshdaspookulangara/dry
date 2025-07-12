@@ -83,13 +83,15 @@ if (!isset($_GET['id']) || !filter_var($_GET['id'], FILTER_VALIDATE_INT)) {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex">
+                            <form action="cart_actions.php" method="POST" class="d-flex">
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                 <label for="quantity" class="form-label me-2 pt-1">Qty:</label>
                                 <input type="number" class="form-control me-3" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" style="width: 80px;" <?php if ($product['stock_quantity'] <= 0) echo 'disabled'; ?>>
-                                <button class="btn btn-primary flex-grow-1" <?php if ($product['stock_quantity'] <= 0) echo 'disabled'; ?>>
+                                <button type="submit" class="btn btn-primary flex-grow-1" <?php if ($product['stock_quantity'] <= 0) echo 'disabled'; ?>>
                                     <i class="fas fa-cart-plus me-2"></i>Add to Cart
                                 </button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>

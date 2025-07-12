@@ -79,7 +79,7 @@
         <div class="row">
             <?php
             // Note: $conn is available from includes/header.php
-            $flash_sale_sql = "SELECT id, name, price, original_price, image, rating, rating_count FROM products WHERE is_flash_sale = 1 LIMIT 6";
+            $flash_sale_sql = "SELECT id, name, price, original_price, image, rating, rating_count, stock_quantity FROM products WHERE is_flash_sale = 1 LIMIT 6";
             $flash_sale_result = mysqli_query($conn, $flash_sale_sql);
 
             if ($flash_sale_result && mysqli_num_rows($flash_sale_result) > 0) {
@@ -116,9 +116,14 @@
                             <span class="rating-text">(<?php echo htmlspecialchars($product['rating_count']); ?>)</span>
                         </div>
                         <div class="product-actions">
-                            <button class="btn-add-cart">
-                                <i class="fas fa-cart-plus me-2"></i>Add to Cart
-                            </button>
+                            <form action="cart_actions.php" method="POST" class="d-inline">
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn-add-cart" <?php if ($product['stock_quantity'] <= 0) echo 'disabled'; ?>>
+                                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                </button>
+                            </form>
                             <a href="product_details.php?id=<?php echo $product['id']; ?>" class="btn-quick-view" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
@@ -147,7 +152,7 @@
 
         <div class="row">
             <?php
-            $featured_sql = "SELECT id, name, price, original_price, image, rating, rating_count FROM products WHERE is_featured = 1 LIMIT 4";
+            $featured_sql = "SELECT id, name, price, original_price, image, rating, rating_count, stock_quantity FROM products WHERE is_featured = 1 LIMIT 4";
             $featured_result = mysqli_query($conn, $featured_sql);
 
             if ($featured_result && mysqli_num_rows($featured_result) > 0) {
@@ -184,9 +189,14 @@
                             <span class="rating-text">(<?php echo htmlspecialchars($product['rating_count']); ?>)</span>
                         </div>
                         <div class="product-actions">
-                            <button class="btn-add-cart">
-                                <i class="fas fa-cart-plus me-2"></i>Add to Cart
-                            </button>
+                            <form action="cart_actions.php" method="POST" class="d-inline">
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn-add-cart" <?php if ($product['stock_quantity'] <= 0) echo 'disabled'; ?>>
+                                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                </button>
+                            </form>
                             <a href="product_details.php?id=<?php echo $product['id']; ?>" class="btn-quick-view" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
