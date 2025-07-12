@@ -71,7 +71,12 @@ $is_login_page = basename($_SERVER['PHP_SELF']) == 'login.php';
                         <i class="fas fa-tags me-2"></i> Manage Offers
                     </a>
                 </li>
-                <!-- Add other management links here e.g., Products, Categories, Orders -->
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/products/') !== false ? 'active' : ''; ?>" href="products/index.php">
+                        <i class="fas fa-box-open me-2"></i> Manage Products
+                    </a>
+                </li>
+                <!-- Add other management links here e.g., Categories, Orders -->
                  <li class="nav-item">
                     <a class="nav-link" href="../index.php" target="_blank">
                         <i class="fas fa-store me-2"></i> View Storefront
