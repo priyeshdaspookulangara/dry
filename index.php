@@ -86,13 +86,19 @@
                 while($product = mysqli_fetch_assoc($flash_sale_result)) {
             ?>
             <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                        <div class="product-badge">SALE</div>
-                    </div>
+                <div class="product-card h-100">
+                    <a href="product_details.php?id=<?php echo $product['id']; ?>" class="text-decoration-none">
+                        <div class="product-image">
+                            <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                            <div class="product-badge">SALE</div>
+                        </div>
+                    </a>
                     <div class="product-info">
-                        <h5 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h5>
+                        <h5 class="product-title">
+                             <a href="product_details.php?id=<?php echo $product['id']; ?>" class="text-decoration-none text-dark">
+                                <?php echo htmlspecialchars($product['name']); ?>
+                            </a>
+                        </h5>
                         <div class="product-price">
                             <span class="current-price">$<?php echo htmlspecialchars($product['price']); ?></span>
                             <?php if (!empty($product['original_price']) && $product['original_price'] > $product['price']): ?>
@@ -113,9 +119,9 @@
                             <button class="btn-add-cart">
                                 <i class="fas fa-cart-plus me-2"></i>Add to Cart
                             </button>
-                            <button class="btn-quick-view">
+                            <a href="product_details.php?id=<?php echo $product['id']; ?>" class="btn-quick-view" title="View Details">
                                 <i class="fas fa-eye"></i>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -148,13 +154,19 @@
                 while($product = mysqli_fetch_assoc($featured_result)) {
             ?>
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                        <div class="product-badge">FEATURED</div>
-                    </div>
+                <div class="product-card h-100">
+                     <a href="product_details.php?id=<?php echo $product['id']; ?>" class="text-decoration-none">
+                        <div class="product-image">
+                            <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                            <div class="product-badge">FEATURED</div>
+                        </div>
+                    </a>
                     <div class="product-info">
-                        <h5 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h5>
+                        <h5 class="product-title">
+                            <a href="product_details.php?id=<?php echo $product['id']; ?>" class="text-decoration-none text-dark">
+                                <?php echo htmlspecialchars($product['name']); ?>
+                            </a>
+                        </h5>
                         <div class="product-price">
                             <span class="current-price">$<?php echo htmlspecialchars($product['price']); ?></span>
                              <?php if (!empty($product['original_price']) && $product['original_price'] > $product['price']): ?>
@@ -175,9 +187,9 @@
                             <button class="btn-add-cart">
                                 <i class="fas fa-cart-plus me-2"></i>Add to Cart
                             </button>
-                            <button class="btn-quick-view">
+                            <a href="product_details.php?id=<?php echo $product['id']; ?>" class="btn-quick-view" title="View Details">
                                 <i class="fas fa-eye"></i>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
