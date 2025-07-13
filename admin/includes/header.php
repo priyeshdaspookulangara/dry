@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config.php';
 session_start();
 // Redirect to login if not authenticated
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -62,22 +63,22 @@ $is_login_page = basename($_SERVER['PHP_SELF']) == 'login.php';
         <div class="sidebar-sticky">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" href="dashboard.php">
+                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" href="<?php echo ADMIN_BASE_URL; ?>dashboard.php">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' && strpos($_SERVER['REQUEST_URI'], '/admin/offers/') !== false ? 'active' : ''; ?>" href="offers/index.php">
+                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' && strpos($_SERVER['REQUEST_URI'], '/admin/offers/') !== false ? 'active' : ''; ?>" href="<?php echo ADMIN_BASE_URL; ?>offers/index.php">
                         <i class="fas fa-tags me-2"></i> Manage Offers
                     </a>
                 </li>
                  <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/categories/') !== false ? 'active' : ''; ?>" href="categories/index.php">
+                    <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/categories/') !== false ? 'active' : ''; ?>" href="<?php echo ADMIN_BASE_URL; ?>categories/index.php">
                         <i class="fas fa-sitemap me-2"></i> Manage Categories
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/products/') !== false ? 'active' : ''; ?>" href="products/index.php">
+                    <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/admin/products/') !== false ? 'active' : ''; ?>" href="<?php echo ADMIN_BASE_URL; ?>products/index.php">
                         <i class="fas fa-box-open me-2"></i> Manage Products
                     </a>
                 </li>
