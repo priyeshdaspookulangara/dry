@@ -2,137 +2,80 @@
 session_start();
 require_once 'db.php';
 
-// --- Guards ---
-// 1. Must be a POST request
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: index.php");
-    exit;
-}
-// 2. Must be logged in
+// Redirect to login if not logged in
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['error_message'] = "You must be logged in to place an order.";
-    header("Location: login.php");
-    exit;
-}
-// 3. Cart must not be empty
-if (empty($_SESSION['cart'])) {
-    header("Location: cart.php");
+    header('Location: login.php');
     exit;
 }
 
-// --- Sanitize and Validate Address Input ---
+// Redirect to cart if cart is empty or request method is not POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_SESSION['cart'])) {
+    header('Location: cart.php');
+    exit;
+}
+
 $user_id = $_SESSION['user_id'];
-$full_name = trim($_POST['full_name'] ?? '');
-$address_line_1 = trim($_POST['address_line_1'] ?? '');
-$address_line_2 = trim($_POST['address_line_2'] ?? null); // Optional
-$city = trim($_POST['city'] ?? '');
-$state = trim($_POST['state'] ?? '');
-$postal_code = trim($_POST['postal_code'] ?? '');
-$country = trim($_POST['country'] ?? '');
-$phone = trim($_POST['phone'] ?? '');
-$payment_method = $_POST['payment_method'] ?? 'cod';
+$cart = $_SESSION['cart'];
 
-// Basic validation (more can be added)
-if (empty($full_name) || empty($address_line_1) || empty($city) || empty($state) || empty($postal_code) || empty($country) || empty($phone)) {
-    $_SESSION['error_message'] = "All required address fields must be filled out.";
-    header("Location: checkout.php");
-    exit;
+// Sanitize and retrieve form data
+$shipping_name = filter_input(INPUT_POST, 'shipping_name', FILTER_SANITIZE_STRING);
+$shipping_address = filter_input(INPUT_POST, 'shipping_address', FILTER_SANITIZE_STRING);
+$shipping_city = filter_input(INPUT_POST, 'shipping_city', FILTER_SANITIZE_STRING);
+$shipping_state = filter_input(INPUT_POST, 'shipping_state', FILTER_SANITIZE_STRING);
+$shipping_zip = filter_input(INPUT_POST, 'shipping_zip', FILTER_SANITIZE_STRING);
+$shipping_phone = filter_input(INPUT_POST, 'shipping_phone', FILTER_SANITIZE_STRING);
+$payment_method = filter_input(INPUT_POST, 'payment_method', FILTER_SANITIZE_STRING);
+
+// Billing address
+if (isset($_POST['same_as_shipping'])) {
+    $billing_name = $shipping_name;
+    $billing_address = $shipping_address;
+    $billing_city = $shipping_city;
+    $billing_state = $shipping_state;
+    $billing_zip = $shipping_zip;
+} else {
+    $billing_name = filter_input(INPUT_POST, 'billing_name', FILTER_SANITIZE_STRING);
+    $billing_address = filter_input(INPUT_POST, 'billing_address', FILTER_SANITIZE_STRING);
+    $billing_city = filter_input(INPUT_POST, 'billing_city', FILTER_SANITIZE_STRING);
+    $billing_state = filter_input(INPUT_POST, 'billing_state', FILTER_SANITIZE_STRING);
+    $billing_zip = filter_input(INPUT_POST, 'billing_zip', FILTER_SANITIZE_STRING);
 }
 
+// Calculate total price
+$total_price = 0;
+$product_ids = array_keys($cart);
+$sql = "SELECT id, price FROM products WHERE id IN (" . implode(',', $product_ids) . ")";
+$result = mysqli_query($conn, $sql);
+$products = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-// --- Database Transaction ---
-mysqli_begin_transaction($conn);
-
-try {
-    // 1. Save the shipping address
-    $sql_address = "INSERT INTO user_addresses (user_id, address_type, full_name, address_line_1, address_line_2, city, state, postal_code, country, phone) VALUES (?, 'shipping', ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt_address = mysqli_prepare($conn, $sql_address);
-    mysqli_stmt_bind_param($stmt_address, "issssssss", $user_id, $full_name, $address_line_1, $address_line_2, $city, $state, $postal_code, $country, $phone);
-    mysqli_stmt_execute($stmt_address);
-    $shipping_address_id = mysqli_insert_id($conn);
-    mysqli_stmt_close($stmt_address);
-
-    if(!$shipping_address_id) throw new Exception("Failed to save shipping address.");
-
-    // 2. Fetch product details and calculate totals again on the server-side
-    $cart_items = $_SESSION['cart'];
-    $product_ids = array_keys($cart_items);
-    $placeholders = implode(',', array_fill(0, count($product_ids), '?'));
-    $types = str_repeat('i', count($product_ids));
-
-    $sql_products = "SELECT id, price, stock_quantity FROM products WHERE id IN ($placeholders)";
-    $stmt_products = mysqli_prepare($conn, $sql_products);
-    mysqli_stmt_bind_param($stmt_products, $types, ...$product_ids);
-    mysqli_stmt_execute($stmt_products);
-    $result_products = mysqli_stmt_get_result($stmt_products);
-
-    $fetched_products = [];
-    while($row = mysqli_fetch_assoc($result_products)){
-        $fetched_products[$row['id']] = $row;
-    }
-    mysqli_stmt_close($stmt_products);
-
-    // Final stock check and total calculation
-    $subtotal = 0;
-    foreach($cart_items as $product_id => $quantity){
-        if(!isset($fetched_products[$product_id])){
-            throw new Exception("Product with ID $product_id not found in database.");
-        }
-        if($fetched_products[$product_id]['stock_quantity'] < $quantity){
-            throw new Exception("Not enough stock for product ID $product_id.");
-        }
-        $subtotal += $fetched_products[$product_id]['price'] * $quantity;
-    }
-    $total_amount = $subtotal; // Assuming free shipping for now
-
-    // 3. Create the order
-    $order_number = 'ORD-' . time() . '-' . $user_id;
-    $sql_order = "INSERT INTO orders (order_number, user_id, shipping_address_id, subtotal, total_amount, payment_method) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt_order = mysqli_prepare($conn, $sql_order);
-    mysqli_stmt_bind_param($stmt_order, "siidds", $order_number, $user_id, $shipping_address_id, $subtotal, $total_amount, $payment_method);
-    mysqli_stmt_execute($stmt_order);
-    $order_id = mysqli_insert_id($conn);
-    mysqli_stmt_close($stmt_order);
-
-    if(!$order_id) throw new Exception("Failed to create order.");
-
-    // 4. Insert order items and update stock
-    $sql_order_item = "INSERT INTO order_items (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)";
-    $stmt_order_item = mysqli_prepare($conn, $sql_order_item);
-
-    $sql_update_stock = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?";
-    $stmt_update_stock = mysqli_prepare($conn, $sql_update_stock);
-
-    foreach($cart_items as $product_id => $quantity){
-        $product = $fetched_products[$product_id];
-        // Insert order item
-        mysqli_stmt_bind_param($stmt_order_item, "iisid", $order_id, $product_id, $product['name'], $quantity, $product['price']);
-        mysqli_stmt_execute($stmt_order_item);
-
-        // Update stock
-        mysqli_stmt_bind_param($stmt_update_stock, "ii", $quantity, $product_id);
-        mysqli_stmt_execute($stmt_update_stock);
-    }
-    mysqli_stmt_close($stmt_order_item);
-    mysqli_stmt_close($stmt_update_stock);
-
-    // If all queries were successful, commit the transaction
-    mysqli_commit($conn);
-
-    // 5. Clear the cart
-    unset($_SESSION['cart']);
-
-    // 6. Redirect to success page
-    header("Location: order_success.php?order_number=" . urlencode($order_number));
-    exit;
-
-} catch (Exception $e) {
-    // If any query fails, roll back all changes
-    mysqli_rollback($conn);
-    $_SESSION['error_message'] = "Failed to place order: " . $e->getMessage();
-    header("Location: checkout.php");
-    exit;
-} finally {
-    mysqli_close($conn);
+foreach ($products as $product) {
+    $total_price += $product['price'] * $cart[$product['id']];
 }
+
+// Insert order into database
+$sql = "INSERT INTO orders (user_id, total_price, shipping_name, shipping_address, shipping_city, shipping_state, shipping_zip, shipping_phone, billing_name, billing_address, billing_city, billing_state, billing_zip, payment_method, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, 'idsssssssssssss', $user_id, $total_price, $shipping_name, $shipping_address, $shipping_city, $shipping_state, $shipping_zip, $shipping_phone, $billing_name, $billing_address, $billing_city, $billing_state, $billing_zip, $payment_method);
+mysqli_stmt_execute($stmt);
+$order_id = mysqli_insert_id($conn);
+
+// Insert order items into database
+$sql = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+$stmt = mysqli_prepare($conn, $sql);
+
+foreach ($products as $product) {
+    $quantity = $cart[$product['id']];
+    $price = $product['price'];
+    mysqli_stmt_bind_param($stmt, 'iiid', $order_id, $product['id'], $quantity, $price);
+    mysqli_stmt_execute($stmt);
+}
+
+// Clear cart
+unset($_SESSION['cart']);
+
+// Redirect to order success page
+$_SESSION['success_message'] = "Your order has been placed successfully!";
+header('Location: order_success.php?order_id=' . $order_id);
+exit;
 ?>
