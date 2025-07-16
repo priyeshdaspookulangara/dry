@@ -138,12 +138,12 @@ require_once 'db.php'; // Include the database connection
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="offers.php">
                             <i class="fas fa-tags"></i> Offers
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="featured.php">
                             <i class="fas fa-star"></i> Featured
                         </a>
                     </li>
