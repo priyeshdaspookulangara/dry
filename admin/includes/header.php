@@ -82,6 +82,11 @@ $is_login_page = basename($_SERVER['PHP_SELF']) == 'login.php';
                         <i class="fas fa-box-open me-2"></i> Manage Products
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>" href="<?php echo ADMIN_BASE_URL; ?>settings.php">
+                        <i class="fas fa-cog me-2"></i> Settings
+                    </a>
+                </li>
                 <!-- Add other management links here e.g., Orders -->
                  <li class="nav-item">
                     <a class="nav-link" href="../index.php" target="_blank">
