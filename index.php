@@ -1,14 +1,19 @@
 <?php require_once 'includes/header.php'; ?>
 
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-section" style="background-image: url('<?php
+    $sql = "SELECT setting_value FROM settings WHERE setting_key = 'banner_image'";
+    $result = mysqli_query($conn, $sql);
+    $banner_image = mysqli_fetch_assoc($result)['setting_value'];
+    echo !empty($banner_image) ? htmlspecialchars($banner_image) : 'assets/images/default-banner.jpg';
+?>');">
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="hero-content">
                     <h1 class="hero-title">Premium Quality Dry Fruits & Nuts</h1>
                     <p class="hero-subtitle">Discover the finest selection of natural, healthy, and delicious dry fruits and nuts sourced directly from the best farms.</p>
-                    <a href="#" class="hero-cta">Shop Now</a>
+                    <a href="index.php" class="hero-cta">Shop Now</a>
                 </div>
             </div>
         </div>

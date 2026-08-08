@@ -126,7 +126,7 @@ if (!empty($cart_items)) {
                             <span>$<?php echo number_format($cart_subtotal, 2); ?></span>
                         </div>
                         <div class="d-grid mt-4">
-                            <a href="#" class="btn btn-primary">Proceed to Checkout</a>
+                            <a href="checkout.php" class="btn btn-primary">Proceed to Checkout</a>
                         </div>
                     </div>
                 </div>

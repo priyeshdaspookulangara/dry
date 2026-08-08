@@ -1,5 +1,5 @@
 <?php
-require_once '../includes/header.php'; // For session start
+session_start(); // Start session for messages
 require_once '../../db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

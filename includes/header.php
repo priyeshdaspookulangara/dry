@@ -138,27 +138,27 @@ require_once 'db.php'; // Include the database connection
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="offers.php">
                             <i class="fas fa-tags"></i> Offers
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="featured.php">
                             <i class="fas fa-star"></i> Featured
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="about.php">
                             <i class="fas fa-info-circle"></i> About Us
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="contact.php">
                             <i class="fas fa-headset"></i> Contact Us
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="mega-menu-item nav-link" href="#">
+                        <a class="mega-menu-item nav-link" href="testimonials.php">
                             <i class="fas fa-comments"></i> Testimonials
                         </a>
                     </li>
